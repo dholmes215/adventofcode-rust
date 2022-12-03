@@ -9,24 +9,23 @@ use adventofcode_rust::aoc::*;
 
 use itertools::Itertools;
 
-fn priority(c: &u8) -> i32 {
-    if *c as char >= 'a' && *c as char <= 'z' {
-        return *c as i32 - 'a' as i32 + 1
+fn priority(c: u8) -> i32 {
+    if c as char >= 'a' && c as char <= 'z' {
+        return c as i32 - 'a' as i32 + 1
     }
-    *c as i32 - 'A' as i32 + 27
+    c as i32 - 'A' as i32 + 27
 }
 
 fn priority_mask(items: &[u8]) -> u64 {
     let mut out: u64 = 0;
     for c in items {
-        out |= 1 << priority(c)
+        out |= 1 << priority(*c)
     }
     out
 }
 
 fn common_items(rucksack: &[u8]) -> u64 {
-    let c1 = &rucksack[0..rucksack.len() / 2];
-    let c2 = &rucksack[rucksack.len() / 2..];
+    let (c1, c2) = rucksack.split_at(rucksack.len()/2);
     priority_mask(c1) & priority_mask(c2)
 }
 
