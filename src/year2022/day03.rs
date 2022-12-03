@@ -49,12 +49,12 @@ pub fn day03(input: &str) -> SolutionResult {
             .map(|l| l.as_bytes())
             .collect::<Vec<&[u8]>>();
 
-    let part1_sum: i32 = (&rucksacks).iter()
-        .map(|x| priority_from_rucksack(*x))
+    let part1_sum: i32 = rucksacks.iter()
+        .map(|x| priority_from_rucksack(x))
         .sum();
 
-    let part2_sum: i32 = (&rucksacks).iter()
-        .map(|x| priority_mask(*x))
+    let part2_sum: i32 = rucksacks.iter()
+        .map(|x| priority_mask(x))
         .chunks(3).into_iter()
         .map(common_items_group)
         .map(priority_from_mask)
