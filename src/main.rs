@@ -31,4 +31,11 @@ fn main() {
         std::println!("2022 Day 03 Part 1: {}", result.a);
         std::println!("2022 Day 03 Part 2: {}", result.b);
     }
+
+    {
+        let input = fs::read_to_string("data/2022/04.txt").unwrap();
+        let result = year2022::day04::day04(&input);
+        std::println!("2022 Day 04 Part 1: {}", result.a);
+        std::println!("2022 Day 04 Part 2: {}", result.b);
+    }
 }
