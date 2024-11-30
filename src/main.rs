@@ -9,6 +9,7 @@ use std::fs;
 
 mod year2021;
 mod year2022;
+mod year2024;
 
 fn main() {
     {
@@ -44,5 +45,12 @@ fn main() {
         let result = year2022::day06::day06(&input);
         std::println!("2022 Day 06 Part 1: {}", result.a);
         std::println!("2022 Day 06 Part 2: {}", result.b);
+    }
+
+    {
+        let input = fs::read_to_string("data/2024/01.txt").unwrap().replace("\r", "");
+        let result = year2024::day01::day01(&input);
+        std::println!("2024 Day 01 Part 1: {}", result.a);
+        std::println!("2024 Day 01 Part 2: {}", result.b);
     }
 }
