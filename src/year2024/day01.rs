@@ -10,8 +10,8 @@ use itertools::Itertools;
 use adventofcode_rust::aoc::*;
 
 pub fn day01(input: &str) -> SolutionResult {
-    let mut list1 = input.lines().into_iter().map(|line| { line.split_ascii_whitespace().next().unwrap().parse::<i32>().unwrap() } ).collect_vec();
-    let mut list2 = input.lines().into_iter().map(|line| { line.split_ascii_whitespace().last().unwrap().parse::<i32>().unwrap() } ).collect_vec();
+    let mut list1 = input.lines().map(|line| { line.split_ascii_whitespace().next().unwrap().parse::<i32>().unwrap() } ).collect_vec();
+    let mut list2 = input.lines().map(|line| { line.split_ascii_whitespace().last().unwrap().parse::<i32>().unwrap() } ).collect_vec();
     list1.sort();
     list2.sort();
 
