@@ -48,7 +48,9 @@ fn main() {
     }
 
     {
-        let input = fs::read_to_string("data/2024/01.txt").unwrap().replace("\r", "");
+        let mut input_bytes = fs::read("data/2024/01.txt").unwrap();
+        input_bytes.retain(|&x| x != ('\r' as u8));
+        let input = std::str::from_utf8(&*input_bytes).unwrap();
         let result = year2024::day01::day01(&input);
         std::println!("2024 Day 01 Part 1: {}", result.a);
         std::println!("2024 Day 01 Part 2: {}", result.b);
