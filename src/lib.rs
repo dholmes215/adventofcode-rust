@@ -5,9 +5,17 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+use crate::aoc::SolutionResult;
+
 pub mod aoc {
     pub struct SolutionResult{
         pub a: String,
         pub b: String,
+    }
+}
+
+impl SolutionResult {
+    pub fn new<T: ToString>(a: T, b: T) -> SolutionResult {
+        SolutionResult { a: a.to_string(), b: b.to_string() }
     }
 }

@@ -29,8 +29,5 @@ pub fn day03(input: &str) -> SolutionResult {
         }
     }
 
-    SolutionResult {
-        a: a.to_string(),
-        b: b.to_string(),
-    }
+    SolutionResult::new(a, b)
 }
