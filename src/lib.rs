@@ -15,7 +15,7 @@ pub mod aoc {
 }
 
 impl SolutionResult {
-    pub fn new<T: ToString>(a: T, b: T) -> SolutionResult {
+    pub fn new<T1: ToString, T2: ToString>(a: T1, b: T2) -> SolutionResult {
         SolutionResult { a: a.to_string(), b: b.to_string() }
     }
 }
