@@ -35,7 +35,7 @@ fn overlaps(range: ((u8,u8),(u8,u8))) -> bool {
 pub fn day04(input: &str) -> SolutionResult {
     let pairs =
         input.trim()
-            .split("\n")
+            .split('\n')
             .map(parse_line)
             .collect::<Vec<((u8,u8),(u8,u8))>>();
 

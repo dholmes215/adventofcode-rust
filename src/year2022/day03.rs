@@ -44,7 +44,7 @@ fn priority_from_rucksack(rucksack: &[u8]) -> i32 {
 pub fn day03(input: &str) -> SolutionResult {
     let rucksacks =
         input.trim()
-            .split("\n")
+            .split('\n')
             .map(|l| l.as_bytes())
             .collect::<Vec<&[u8]>>();
 

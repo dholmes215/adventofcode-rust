@@ -8,7 +8,7 @@
 use adventofcode_rust::aoc::*;
 
 pub fn day01(input: &str) -> SolutionResult {
-    let input_lines = input.split("\n");
+    let input_lines = input.split('\n');
 
     let mut elf_calories: Vec<i32> = vec!(0);
     for line in input_lines {
