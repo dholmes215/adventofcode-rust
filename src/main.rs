@@ -84,9 +84,10 @@ fn main() {
     // }
 
     {
-        let mut input_bytes = fs::read("data/2024/05example.txt").unwrap();
+        let mut input_bytes = fs::read("data/2024/05.txt").unwrap();
         input_bytes.retain(|&x| x != b'\r');
-        let result = year2024::day05::day05(&input_bytes);
+        let input = std::str::from_utf8(&input_bytes).unwrap();
+        let result = year2024::day05::day05(input);
         println!("2024 Day 05 Part 1: {}", result.a);
         println!("2024 Day 05 Part 2: {}", result.b);
     }
