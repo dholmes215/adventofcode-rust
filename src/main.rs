@@ -73,13 +73,21 @@ fn main() {
     //     println!("2024 Day 03 Part 1: {}", result.a);
     //     println!("2024 Day 03 Part 2: {}", result.b);
     // }
-    
+    // 
+    // {
+    //     let mut input_bytes = fs::read("data/2024/04.txt").unwrap();
+    //     input_bytes.retain(|&x| x != b'\r');
+    //     // let input = std::str::from_utf8(&input_bytes).unwrap();
+    //     let result = year2024::day04::day04(&input_bytes);
+    //     println!("2024 Day 04 Part 1: {}", result.a);
+    //     println!("2024 Day 04 Part 2: {}", result.b);
+    // }
+
     {
-        let mut input_bytes = fs::read("data/2024/04.txt").unwrap();
+        let mut input_bytes = fs::read("data/2024/05example.txt").unwrap();
         input_bytes.retain(|&x| x != b'\r');
-        // let input = std::str::from_utf8(&input_bytes).unwrap();
-        let result = year2024::day04::day04(&input_bytes);
-        println!("2024 Day 04 Part 1: {}", result.a);
-        println!("2024 Day 04 Part 2: {}", result.b);
+        let result = year2024::day05::day05(&input_bytes);
+        println!("2024 Day 05 Part 1: {}", result.a);
+        println!("2024 Day 05 Part 2: {}", result.b);
     }
 }

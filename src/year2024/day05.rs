@@ -5,8 +5,9 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-pub mod day01;
-pub mod day02;
-pub mod day03;
-pub mod day04;
-pub mod day05;
+use adventofcode_rust::aoc::SolutionResult;
+use itertools::Itertools;
+
+pub fn day05(input: &[u8]) -> SolutionResult {
+    SolutionResult::new("", "")
+}
