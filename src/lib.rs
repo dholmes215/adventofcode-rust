@@ -17,7 +17,7 @@ pub mod aoc {
         pub b: String,
     }
 
-    #[derive(Copy, Clone, Debug)]
+    #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
     pub struct Vec2<T> {
         pub x: T,
         pub y: T,
@@ -82,6 +82,7 @@ pub mod aoc {
         }
     }
 
+    #[derive(Clone)]
     pub struct Grid<T> {
         data: Vec<T>,
         width: isize,
