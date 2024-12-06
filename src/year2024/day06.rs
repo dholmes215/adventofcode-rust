@@ -25,8 +25,6 @@ pub fn day06(input: &str) -> SolutionResult {
         )
         .for_each(|(to, from)| *to = *from);
 
-    // print_grid(&grid);
-
     let (grid_a, _) = simulate_guard(&grid, None);
 
     let a = grid_a.data_slice().iter().filter(|&&c| c == b'X').count();
@@ -61,9 +59,16 @@ fn simulate_guard(grid: &Grid<u8>, obstacle: Option<Vec2<isize>>) -> (Grid<u8>, 
         Vec2::new(-1, 0),
     ];
 
-    // (position, direction) pairs
-    let mut visited: HashSet<(Vec2<isize>, Vec2<isize>)> = HashSet::new();
-    visited.insert((pos, Vec2::new(0, -1)));
+    let dir_to_u8 = |dir: Vec2<isize>| match dir {
+        Vec2 { x: 0, y: -1 } => 1u8,
+        Vec2 { x: 1, y: 0 } => 2u8,
+        Vec2 { x: 0, y: 1 } => 4u8,
+        Vec2 { x: -1, y: 0 } => 8u8,
+        _ => panic!(),
+    };
+
+    let mut visited_grid = Grid::<u8>::new(grid.width(), grid.height());
+    visited_grid[pos] = dir_to_u8(Vec2::new(0, -1));
 
     let mut looped = false;
     while grid.area().contains(pos) && !looped {
@@ -75,16 +80,15 @@ fn simulate_guard(grid: &Grid<u8>, obstacle: Option<Vec2<isize>>) -> (Grid<u8>, 
         grid[pos] = b'X';
         pos = next;
 
-        if visited.contains(&(pos, directions[0])) {
-            looped = true;
-        } else {
-            visited.insert((pos, directions[0]));
+        if grid.area().contains(pos) {
+            if visited_grid[pos] & dir_to_u8(directions[0]) != 0 {
+                looped = true;
+            } else {
+                visited_grid[pos] |= dir_to_u8(directions[0]);
+            }
         }
-        // print_grid(&grid);
     }
-
-    // print_grid(&grid);
-
+    
     (grid, looped)
 }
 

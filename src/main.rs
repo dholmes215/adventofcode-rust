@@ -18,35 +18,35 @@ fn main() {
     //     println!("2021 Day 01 Part 1: {}", result.a);
     //     println!("2021 Day 01 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let input = fs::read_to_string("data/2022/01.txt").unwrap().replace('\r', "");
     //     let result = year2022::day01::day01(&input);
     //     println!("2022 Day 01 Part 1: {}", result.a);
     //     println!("2022 Day 01 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let input = fs::read_to_string("data/2022/03.txt").unwrap().replace('\r', "");
     //     let result = year2022::day03::day03(&input);
     //     println!("2022 Day 03 Part 1: {}", result.a);
     //     println!("2022 Day 03 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let input = fs::read_to_string("data/2022/04.txt").unwrap().replace('\r', "");
     //     let result = year2022::day04::day04(&input);
     //     println!("2022 Day 04 Part 1: {}", result.a);
     //     println!("2022 Day 04 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let input = fs::read_to_string("data/2022/06.txt").unwrap().replace('\r', "");
     //     let result = year2022::day06::day06(&input);
     //     println!("2022 Day 06 Part 1: {}", result.a);
     //     println!("2022 Day 06 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/01.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
@@ -55,7 +55,7 @@ fn main() {
     //     println!("2024 Day 01 Part 1: {}", result.a);
     //     println!("2024 Day 01 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/02.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
@@ -64,7 +64,7 @@ fn main() {
     //     println!("2024 Day 02 Part 1: {}", result.a);
     //     println!("2024 Day 02 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/03.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
@@ -73,7 +73,7 @@ fn main() {
     //     println!("2024 Day 03 Part 1: {}", result.a);
     //     println!("2024 Day 03 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/04.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
@@ -82,7 +82,7 @@ fn main() {
     //     println!("2024 Day 04 Part 1: {}", result.a);
     //     println!("2024 Day 04 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/05.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
