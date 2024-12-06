@@ -6,6 +6,8 @@
 //
 
 use adventofcode_rust::aoc::{Grid, SolutionResult, Vec2};
+use itertools::Itertools;
+use rayon::prelude::*;
 use std::collections::HashSet;
 
 pub fn day06(input: &str) -> SolutionResult {
@@ -28,10 +30,13 @@ pub fn day06(input: &str) -> SolutionResult {
     let (grid_a, _) = simulate_guard(&grid, None);
 
     let a = grid_a.data_slice().iter().filter(|&&c| c == b'X').count();
+
     let b = grid_a
         .area()
         .all_points()
         .filter(|p| grid_a[*p] == b'X')
+        .collect_vec()
+        .par_iter()
         .filter(|(x, y)| simulate_guard(&grid, Some(Vec2::new(*x, *y))).1)
         .count();
 
