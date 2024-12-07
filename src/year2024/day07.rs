@@ -7,6 +7,7 @@
 
 use adventofcode_rust::aoc::SolutionResult;
 use itertools::Itertools;
+use rayon::prelude::*;
 
 pub fn day07(input: &str) -> SolutionResult {
     let equations = input
@@ -28,12 +29,13 @@ pub fn day07(input: &str) -> SolutionResult {
 }
 
 fn solve(equations: &Vec<(i64, Vec<i64>)>, operators: &[char]) -> i64 {
-    let mut sum = 0i64;
-    for (result, nums) in equations {
-        let op_count = nums.len() - 1;
-
+    let longest_equation = equations.iter().map(|(_, eq)| eq.len()).max().unwrap();
+    println!("{longest_equation}");
+    let mut all_op_sequences: Vec<Vec<Vec<char>>> = Vec::new();
+    all_op_sequences.push(vec![]); // op sequence length of 0 is empty
+    for op_seq_len in 1..longest_equation {
         let mut op_sequences: Vec<Vec<char>> = operators.iter().map(|op| vec![*op]).collect();
-        for _ in 0..op_count - 1 {
+        for _ in 0..(op_seq_len - 1) {
             op_sequences = op_sequences
                 .iter()
                 .cartesian_product(operators.iter())
@@ -42,25 +44,38 @@ fn solve(equations: &Vec<(i64, Vec<i64>)>, operators: &[char]) -> i64 {
                     ret.push(*op);
                     ret
                 })
-                .collect_vec()
+                .collect_vec();
         }
+        all_op_sequences.push(op_sequences);
+    }
 
-        for op_seq in op_sequences {
-            let mut num_iter = nums.iter();
-            let mut acc = *num_iter.next().unwrap();
-            for op in &op_seq {
-                match op {
-                    '+' => acc += num_iter.next().unwrap(),
-                    '*' => acc *= num_iter.next().unwrap(),
-                    '|' => acc = format!("{}{}", acc, num_iter.next().unwrap()).parse::<i64>().unwrap(),
-                    _ => panic!()
+    equations
+        .par_iter()
+        .map(|(result, nums)| {
+            let op_count = nums.len() - 1;
+            for op_seq in &all_op_sequences[op_count - 1] {
+                let mut num_iter = nums.iter();
+                let mut acc = *num_iter.next().unwrap();
+                for op in op_seq {
+                    match op {
+                        '+' => acc += num_iter.next().unwrap(),
+                        '*' => acc *= num_iter.next().unwrap(),
+                        '|' => {
+                            acc = format!("{}{}", acc, num_iter.next().unwrap())
+                                .parse::<i64>()
+                                .unwrap()
+                        }
+                        _ => panic!(),
+                    }
+                }
+                if acc > *result {
+                    return 0;
+                }
+                if acc == *result {
+                    return *result;
                 }
             }
-            if acc == *result {
-                sum += result;
-                break;
-            }
-        }
-    }
-    sum
+            0
+        })
+        .sum()
 }
