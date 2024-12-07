@@ -8,22 +8,9 @@
 use adventofcode_rust::aoc::{Grid, SolutionResult, Vec2};
 use itertools::Itertools;
 use rayon::prelude::*;
-use std::collections::HashSet;
 
 pub fn day06(input: &str) -> SolutionResult {
-    let width = input.lines().next().unwrap().len() as isize;
-    let height = input.trim().lines().count() as isize;
-    let mut grid = Grid::<u8>::new(width, height);
-    grid.data_mut_slice()
-        .iter_mut()
-        .zip(
-            input
-                .trim()
-                .as_bytes()
-                .iter()
-                .filter(|c| **c != b'\r' && **c != b'\n'),
-        )
-        .for_each(|(to, from)| *to = *from);
+    let grid = Grid::from_u8(input.as_bytes());
 
     let (grid_a, _) = simulate_guard(&grid, None);
 
@@ -88,10 +75,11 @@ fn simulate_guard(grid: &Grid<u8>, obstacle: Option<Vec2<isize>>) -> (Grid<u8>, 
             }
         }
     }
-    
+
     (grid, looped)
 }
 
+#[allow(dead_code)]
 fn print_grid(grid: &Grid<u8>) {
     for y in 0..grid.height() {
         for x in 0..grid.width() {

@@ -82,6 +82,10 @@ pub mod aoc {
         }
     }
 
+    fn is_crlf_byte(c: &u8) -> bool {
+        *c == b'\r' || *c == b'\n'
+    }
+
     #[derive(Clone)]
     pub struct Grid<T> {
         data: Vec<T>,
@@ -89,6 +93,21 @@ pub mod aoc {
         height: isize,
     }
 
+    impl Grid<u8> {
+        pub fn from_u8(input: &[u8]) -> Grid<u8> {
+            let width = input.iter().position(is_crlf_byte).unwrap();
+            let chunk_width = input[width..].iter().position(|c| !is_crlf_byte(c)).unwrap() + width;
+            let height = (input.len() / chunk_width);
+            let mut grid = Grid::<u8>::new(width as isize, height as isize);
+            let input_iter = input
+                .trim_ascii()
+                .iter()
+                .filter(|c| **c != b'\r' && **c != b'\n');
+            grid.data_mut_slice().iter_mut().zip(input_iter).for_each(|(to, from)| *to = *from);
+            grid
+        }
+    }
+    
     impl<T: Default> Grid<T> {
         pub fn new(width: isize, height: isize) -> Self {
             let mut grid = Grid {
