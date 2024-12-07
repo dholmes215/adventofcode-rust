@@ -30,7 +30,6 @@ pub fn day07(input: &str) -> SolutionResult {
 
 fn solve(equations: &Vec<(i64, Vec<i64>)>, operators: &[char]) -> i64 {
     let longest_equation = equations.iter().map(|(_, eq)| eq.len()).max().unwrap();
-    println!("{longest_equation}");
     let mut all_op_sequences: Vec<Vec<Vec<char>>> = Vec::new();
     all_op_sequences.push(vec![]); // op sequence length of 0 is empty
     for op_seq_len in 1..longest_equation {
@@ -53,7 +52,7 @@ fn solve(equations: &Vec<(i64, Vec<i64>)>, operators: &[char]) -> i64 {
         .par_iter()
         .map(|(result, nums)| {
             let op_count = nums.len() - 1;
-            for op_seq in &all_op_sequences[op_count - 1] {
+            for op_seq in &all_op_sequences[op_count] {
                 let mut num_iter = nums.iter();
                 let mut acc = *num_iter.next().unwrap();
                 for op in op_seq {
@@ -67,9 +66,9 @@ fn solve(equations: &Vec<(i64, Vec<i64>)>, operators: &[char]) -> i64 {
                         }
                         _ => panic!(),
                     }
-                }
-                if acc > *result {
-                    return 0;
+                    if acc > *result {
+                        continue;
+                    }
                 }
                 if acc == *result {
                     return *result;
