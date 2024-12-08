@@ -8,6 +8,7 @@
 use crate::aoc::SolutionResult;
 
 pub mod aoc {
+    use std::fmt::Display;
     use itertools::{Itertools, Product};
     use std::ops;
     use std::ops::{Add, Index, IndexMut, Range};
@@ -29,6 +30,12 @@ pub mod aoc {
         }
         pub fn from_tuple(t: (T, T)) -> Vec2<T> {
             Vec2::new(t.0, t.1)
+        }
+    }
+    
+    impl<T: Display> Display for Vec2<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "({}, {})", self.x, self.y)
         }
     }
 
@@ -59,6 +66,51 @@ pub mod aoc {
         fn add_assign(&mut self, rhs: (T, T)) {
             self.x += rhs.0;
             self.y += rhs.1;
+        }
+    }
+
+    impl<T: ops::Sub<Output = T>> ops::Sub<Vec2<T>> for Vec2<T> {
+        type Output = Vec2<T>;
+
+        fn sub(self, rhs: Vec2<T>) -> Self::Output {
+            Vec2::new(self.x - rhs.x, self.y - rhs.y)
+        }
+    }
+
+    impl<T: ops::Sub<Output = T>> ops::Sub<(T, T)> for Vec2<T> {
+        type Output = Vec2<T>;
+
+        fn sub(self, rhs: (T, T)) -> Self::Output {
+            Vec2::new(self.x - rhs.0, self.y - rhs.1)
+        }
+    }
+
+    impl<T: ops::SubAssign> ops::SubAssign<Vec2<T>> for Vec2<T> {
+        fn sub_assign(&mut self, rhs: Vec2<T>) {
+            self.x -= rhs.x;
+            self.y -= rhs.y;
+        }
+    }
+
+    impl<T: ops::SubAssign> ops::SubAssign<(T, T)> for Vec2<T> {
+        fn sub_assign(&mut self, rhs: (T, T)) {
+            self.x -= rhs.0;
+            self.y -= rhs.1;
+        }
+    }
+
+    impl<T: Clone + ops::Mul<Output = T>> ops::Mul<&T> for Vec2<T> {
+        type Output = Vec2<T>;
+
+        fn mul(self, rhs: &T) -> Self::Output {
+            Vec2::new(self.x * rhs.clone(), self.y * rhs.clone())
+        }
+    }
+
+    impl<T: Clone + ops::MulAssign> ops::AddAssign<&T> for Vec2<T> {
+        fn add_assign(&mut self, rhs: &T) {
+            self.x *= rhs.clone();
+            self.y *= rhs.clone();
         }
     }
 
