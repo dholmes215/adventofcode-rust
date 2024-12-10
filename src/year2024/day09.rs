@@ -88,7 +88,7 @@ pub fn day09(input: &str) -> SolutionResult {
     }
 
     let b = checksum(&blocks_b);
-    
+
     SolutionResult::new(a, b)
 }
 
