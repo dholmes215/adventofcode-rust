@@ -5,42 +5,44 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-use std::mem::swap;
-use adventofcode_rust::aoc::{Grid, SolutionResult, Vec2};
-use itertools::Itertools;
+use adventofcode_rust::aoc::SolutionResult;
+use std::collections::HashMap;
 
-pub fn blink(stones: &Vec<i64>, stones_out: &mut Vec<i64>) {
-    for stone in stones {
+pub fn blink(stones: &HashMap<i64, i64>) -> HashMap<i64, i64> {
+    let mut stones_out: HashMap<i64, i64> = HashMap::new();
+    for (stone, count) in stones {
         if *stone == 0 {
-            stones_out.push(1);
+            *stones_out.entry(1).or_insert(0) += count;
         } else {
             let digits = (i64::ilog10(*stone)) + 1;
             if digits % 2 == 0 {
-                stones_out.push(stone / 10i64.pow(digits / 2));
-                stones_out.push(stone % 10i64.pow(digits / 2));
+                *stones_out.entry(stone / 10i64.pow(digits / 2)).or_insert(0) += count;
+                *stones_out.entry(stone % 10i64.pow(digits / 2)).or_insert(0) += count;
             } else {
-                stones_out.push(stone * 2024);
+                *stones_out.entry(stone * 2024).or_insert(0) += count;
             }
         }
     }
+
+    stones_out
 }
 
 pub fn day11(input: &str) -> SolutionResult {
-    let mut numbers = input
+    let mut number_counts: HashMap<i64, i64> = HashMap::new();
+    input
         .split_ascii_whitespace()
         .map(|n| n.parse::<i64>().unwrap())
-        .collect_vec();
-    let mut next = Vec::<i64>::new();
+        .for_each(|n| *number_counts.entry(n).or_insert(0) += 1);
 
-    // println!("{:#?}", numbers);
-    for i in 0..25 {
-        blink(&numbers, &mut next);
-        swap(&mut numbers, &mut next);
-        next.clear();
-        // println!("{i}: {}: {:#?}", numbers.len(), &numbers.as_slice()[..10]);
+    for _ in 0..25 {
+        number_counts = blink(&number_counts);
     }
-    
-    let a = numbers.len();
+    let a = number_counts.values().sum::<i64>();
 
-    SolutionResult::new(a, "b")
+    for _ in 0..50 {
+        number_counts = blink(&number_counts);
+    }
+    let b = number_counts.values().sum::<i64>();
+
+    SolutionResult::new(a, b)
 }
