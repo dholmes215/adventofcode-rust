@@ -18,7 +18,7 @@ pub mod aoc {
         pub b: String,
     }
 
-    #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, Ord, PartialOrd)]
+    #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, Ord, PartialOrd, Default)]
     pub struct Vec2<T> {
         pub x: T,
         pub y: T,
