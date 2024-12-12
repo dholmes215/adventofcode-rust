@@ -9,7 +9,7 @@ use adventofcode_rust::aoc::SolutionResult;
 use std::collections::HashMap;
 
 pub fn blink(stones: &HashMap<i64, i64>) -> HashMap<i64, i64> {
-    let mut stones_out: HashMap<i64, i64> = HashMap::new();
+    let mut stones_out: HashMap<i64, i64> = HashMap::with_capacity(6000);
     for (stone, count) in stones {
         if *stone == 0 {
             *stones_out.entry(1).or_insert(0) += count;
