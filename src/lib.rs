@@ -211,13 +211,13 @@ pub mod aoc {
         type Output = T;
 
         fn index(&self, index: (isize, isize)) -> &Self::Output {
-            &self.data[(index.1 * self.height + index.0) as usize]
+            &self.data[(index.1 * self.width + index.0) as usize]
         }
     }
 
     impl<T> IndexMut<(isize, isize)> for Grid<T> {
         fn index_mut(&mut self, index: (isize, isize)) -> &mut Self::Output {
-            &mut self.data[(index.1 * self.height + index.0) as usize]
+            &mut self.data[(index.1 * self.width + index.0) as usize]
         }
     }
 
@@ -225,13 +225,13 @@ pub mod aoc {
         type Output = T;
 
         fn index(&self, index: Vec2<isize>) -> &Self::Output {
-            &self.data[(index.y * self.height + index.x) as usize]
+            &self.data[(index.y * self.width + index.x) as usize]
         }
     }
 
     impl<T> IndexMut<Vec2<isize>> for Grid<T> {
         fn index_mut(&mut self, index: Vec2<isize>) -> &mut Self::Output {
-            &mut self.data[(index.y * self.height + index.x) as usize]
+            &mut self.data[(index.y * self.width + index.x) as usize]
         }
     }
 
