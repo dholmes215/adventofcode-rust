@@ -130,7 +130,7 @@ pub mod aoc {
 
     impl<T: Copy + std::iter::Step> Rect<T> {
         pub fn all_points(&self) -> Product<Range<T>, Range<T>> {
-            (self.base.y..self.dimensions.y).cartesian_product(self.base.x..self.dimensions.x)
+            (self.base.x..self.dimensions.x).cartesian_product(self.base.y..self.dimensions.y)
         }
     }
 

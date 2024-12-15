@@ -175,7 +175,7 @@ fn main() {
     // }
 
     {
-        let mut input_bytes = fs::read("data/2024/15example3.txt").unwrap();
+        let mut input_bytes = fs::read("data/2024/15.txt").unwrap();
         input_bytes.retain(|&x| x != b'\r');
         let input = std::str::from_utf8(&input_bytes).unwrap();
         let result = year2024::day15::day15(input);

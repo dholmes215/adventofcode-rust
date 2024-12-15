@@ -161,9 +161,6 @@ fn try_move_box(grid: &mut Grid<u8>, box_pos: Vec2<isize>, m: u8) {
 }
 
 fn part2_run(moves: &Vec<u8>, grid: &mut Grid<u8>) {
-    print_grid(grid);
-    println!("{:?}", grid.area()
-        .all_points().collect_vec());
     let mut robot = Vec2::from_tuple(
         grid.area()
             .all_points()
@@ -190,8 +187,6 @@ fn part2_run(moves: &Vec<u8>, grid: &mut Grid<u8>) {
             grid[robot] = b'@';
         }
     }
-    
-    print_grid(grid);
 }
 
 fn widen_grid(grid: &Grid<u8>) -> Grid<u8> {
@@ -224,7 +219,8 @@ fn widen_grid(grid: &Grid<u8>) -> Grid<u8> {
     wide_grid
 }
 
-fn print_grid(mut grid: &Grid<u8>) {
+#[allow(dead_code)]
+fn print_grid(grid: &Grid<u8>) {
     for line in grid
         .data_slice()
         .chunks_exact(grid.width() as usize)
