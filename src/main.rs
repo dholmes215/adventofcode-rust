@@ -155,7 +155,7 @@ fn main() {
     //     println!("2024 Day 12 Part 1: {}", result.a);
     //     println!("2024 Day 12 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/13.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
@@ -164,7 +164,7 @@ fn main() {
     //     println!("2024 Day 13 Part 1: {}", result.a);
     //     println!("2024 Day 13 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/14.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
@@ -173,7 +173,7 @@ fn main() {
     //     println!("2024 Day 14 Part 1: {}", result.a);
     //     println!("2024 Day 14 Part 2: {}", result.b);
     // }
-    // 
+    //
     // {
     //     let mut input_bytes = fs::read("data/2024/15.txt").unwrap();
     //     input_bytes.retain(|&x| x != b'\r');
