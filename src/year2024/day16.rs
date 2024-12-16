@@ -26,7 +26,7 @@ pub fn day16(input: &str) -> SolutionResult {
     grid[start.0] = b'.';
     grid[end_pos] = b'.';
 
-    let a_result = dijkstra(&grid, start);
+    let a_result = dijkstra(&grid, start, &ends);
     let a = ends.iter().map(|e| a_result.dist[e]).min().unwrap();
     
     let best_ends = ends.iter().filter(|e| a_result.dist[e] == a).collect_vec();
@@ -123,12 +123,16 @@ impl DijkstraResult {
 // - Doesn't just replace predecessor when it finds a better one; also records multiple predecessors
 //   if it finds one _equal_ to the current best, so we can discover more than one "best" path
 //   between two pairs.
-fn dijkstra(grid: &Grid<u8>, source: State) -> DijkstraResult {
+fn dijkstra(grid: &Grid<u8>, source: State, targets: &[State]) -> DijkstraResult {
     let mut o = DijkstraResult::new(source);
     let mut queue = BinaryHeap::new();
     queue.push(Reverse((source, 0)));
 
-    while let Some(Reverse((u_state, _))) = queue.pop() {
+    let mut target_cost: Option<Cost> = None;
+    while let Some(Reverse((u_state, cost))) = queue.pop() {
+        if targets.contains(&u_state) {
+            target_cost = Some(cost)
+        }
         let neighbors = neighbors(grid, u_state);
         for (v_neighbor, cost) in neighbors {
             let alt = o.dist[&u_state] + cost;
@@ -143,6 +147,11 @@ fn dijkstra(grid: &Grid<u8>, source: State) -> DijkstraResult {
             } else if o.dist.contains_key(&v_neighbor) && alt == o.dist[&v_neighbor] {
                 o.prev.get_mut(&v_neighbor).unwrap().insert(u_state);
                 o.dist.insert(v_neighbor, alt);
+            }
+        }
+        if let Some(c) = target_cost {
+            if c < cost {
+                break;
             }
         }
     }
