@@ -30,7 +30,7 @@ pub fn day09(input: &str) -> SolutionResult {
     {
         let (mut left, mut right) = (0usize, blocks.len() - 1);
         while left < right {
-            if (blocks[left] != -1) {
+            if blocks[left] != -1 {
                 left += 1;
                 continue;
             }

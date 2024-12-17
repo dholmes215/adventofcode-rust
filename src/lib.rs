@@ -149,7 +149,7 @@ pub mod aoc {
         pub fn from_u8(input: &[u8]) -> Grid<u8> {
             let width = input.iter().position(is_crlf_byte).unwrap();
             let chunk_width = input[width..].iter().position(|c| !is_crlf_byte(c)).unwrap() + width;
-            let height = (input.len() / chunk_width);
+            let height = input.len() / chunk_width;
             let mut grid = Grid::<u8>::new(width as isize, height as isize);
             let input_iter = input
                 .trim_ascii()
