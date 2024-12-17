@@ -5,11 +5,11 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-use std::cmp::Reverse;
 use crate::year2024::day16::Direction::{East, North, South, West};
 use adventofcode_rust::aoc::{Grid, SolutionResult, Vec2};
-use std::collections::{BinaryHeap, HashMap, HashSet};
 use itertools::Itertools;
+use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 type State = (Vec2<isize>, Direction);
 type Cost = i64;
@@ -19,27 +19,36 @@ pub fn day16(input: &str) -> SolutionResult {
     let mut grid = Grid::from_u8(input.as_bytes());
     let start = (grid_find(&grid, b'S').unwrap(), East);
     let end_pos = grid_find(&grid, b'E').unwrap();
-    
+
     // Because there can be multiple paths with the same cost that end facing different directions,
     // there's more than one valid end "state" even if there's only one end position
     let ends = Direction::all().map(|d| (end_pos, d));
     grid[start.0] = b'.';
     grid[end_pos] = b'.';
 
-    let a_result = dijkstra(&grid, start, &ends);
-    let a = ends.iter().map(|e| a_result.dist[e]).min().unwrap();
-    
-    let best_ends = ends.iter().filter(|e| a_result.dist[e] == a).collect_vec();
-    
+    let dijkstra_search_results = dijkstra(&grid, start, &ends);
+    let a = ends
+        .iter()
+        .map(|e| dijkstra_search_results.dist[e])
+        .min()
+        .unwrap();
+
+    // There may be multiple end states facing different directions but with the same cost, so store
+    // all of them in a Vec.
+    let best_end_states = ends
+        .iter()
+        .filter(|e| dijkstra_search_results.dist[e] == a)
+        .collect_vec();
+
     // Walk all of the best paths we've found and mark them on the map.
     let mut path_states = HashSet::<State>::new();
-    for end in best_ends {
+    for end in best_end_states {
         path_states.insert(*end);
     }
     while !path_states.is_empty() {
         let state = *path_states.iter().next().unwrap();
         path_states.remove(&state);
-        if let Some(predecessors) = &a_result.prev.get(&state){
+        if let Some(predecessors) = &dijkstra_search_results.prev.get(&state) {
             for state in *predecessors {
                 path_states.insert(*state);
             }
