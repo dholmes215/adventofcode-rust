@@ -7,13 +7,11 @@
 
 use adventofcode_rust::aoc::SolutionResult;
 use itertools::Itertools;
-use rayon::iter::{ParallelBridge, ParallelIterator};
 
 pub fn day17(input: &str) -> SolutionResult {
-    let computer = parse_input(input);
-    let mut computer_a = computer.clone();
-    computer_a.run();
-    let a = computer_a.output.iter().map(i64::to_string).join(",");
+    let mut computer = parse_input(input);
+    computer.run();
+    let a = computer.output.iter().map(i64::to_string).join(",");
 
     let reverse_program = computer.program.into_iter().rev().collect_vec();
     let mut a_register_candidates: Vec<i64> = vec![0];
@@ -24,10 +22,9 @@ pub fn day17(input: &str) -> SolutionResult {
         }
         a_register_candidates = next_candidates;
     }
+    let b = a_register_candidates.iter().min().unwrap();
 
-    a_register_candidates.sort();
-    
-    SolutionResult::new(a, a_register_candidates.first().unwrap())
+    SolutionResult::new(a, b)
 }
 
 // Given the values of a and b after the step, return the
@@ -41,12 +38,6 @@ fn reverse_step(a_after: i64, b_after: i64) -> Vec<i64> {
         }
     }
     out
-}
-
-fn part2(mut computer: Computer) -> bool {
-    computer.run_until_output();
-    // println!("Computer: {:?}", computer);
-    computer.program == computer.output
 }
 
 #[derive(Clone, Debug)]
@@ -72,12 +63,6 @@ impl Computer {
 
     fn run(&mut self) {
         while self.instruction_ptr < self.program.len() {
-            self.run_instruction();
-        }
-    }
-
-    fn run_until_output(&mut self) {
-        while self.instruction_ptr < self.program.len() && self.program.starts_with(&self.output) {
             self.run_instruction();
         }
     }
@@ -166,27 +151,11 @@ fn parse_input(input: &str) -> Computer {
     }
 }
 
-// This is the program from my input file, translateed to Rust
-fn davids_program(mut a: i64) -> Vec<i64> {
-    let (mut b, mut c) = (0, 0);
-    let mut out = vec![];
-    while a != 0 {
-        b = (a % 8) ^ 3;
-        c = a / 2_i64.pow(b as u32);
-        b ^= 5;
-        b ^= c;
-        a /= 8;
-        out.push(b % 8);
-    }
-    out
-}
-
+// This is one iteration of my own input program translated into Rust
 fn davids_program_step(a: i64) -> i64 {
-    let mut b = (a % 8) ^ 3;
+    let b = (a % 8) ^ 3;
     let c = a / 2_i64.pow(b as u32);
-    b ^= 5;
-    b ^= c;
-    b % 8
+    (b ^ 5 ^ c) % 8
 }
 
 #[cfg(test)]
