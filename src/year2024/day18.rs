@@ -6,6 +6,7 @@
 
 use adventofcode_rust::aoc::{Grid, SolutionResult, Vec2};
 use itertools::Itertools;
+use rayon::prelude::*;
 use std::collections::VecDeque;
 
 pub fn day18(input: &str) -> SolutionResult {
@@ -15,7 +16,6 @@ pub fn day18(input: &str) -> SolutionResult {
         .map(|s| s.parse::<isize>().unwrap())
         .tuples::<(_, _)>()
         .collect_vec();
-    println!("{:?}", coordinates);
 
     let example = coordinates.len() < 1000;
     let grid_size: Vec2<isize> = match example {
@@ -27,19 +27,16 @@ pub fn day18(input: &str) -> SolutionResult {
         false => 1024,
     };
 
-    let mut grid = prepare_grid(&coordinates, grid_size, iter_count);
+    let grid = prepare_grid(&coordinates, grid_size, iter_count);
+    
+    let a = find_path(&grid).unwrap().len() - 1;
 
-    let path = find_path(&grid).unwrap();
-    for pos in &path {
-        grid[*pos] = b'O';
-    }
-    print_grid(&grid);
-    let a = path.len() - 1;
-
+    // Brute-force part 2 with part 1 solution
     let b = coordinates
-        .iter()
+        .par_iter()
         .enumerate()
-        .find(|&(i, _)| part2_test(i, &coordinates))
+        .skip(iter_count)
+        .find_first(|&(i, _)| part2_test(i, &coordinates))
         .unwrap()
         .1;
 
@@ -53,7 +50,7 @@ fn part2_test(i: usize, coordinates: &[(isize, isize)]) -> bool {
         false => Vec2::new(71, 71),
     };
 
-    let grid = prepare_grid(coordinates, grid_size, i+1);
+    let grid = prepare_grid(coordinates, grid_size, i + 1);
     find_path(&grid).is_none()
 }
 
@@ -110,7 +107,7 @@ fn bfs(grid: &Grid<u8>) -> Option<Grid<Vec2<isize>>> {
 fn find_path(grid: &Grid<u8>) -> Option<Vec<Vec2<isize>>> {
     let start = grid.area().base;
     let end = grid.area().dimensions - (1, 1);
-    match bfs(&grid) {
+    match bfs(grid) {
         None => None,
         Some(predecessors) => {
             let mut out = vec![];
