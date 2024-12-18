@@ -13,6 +13,10 @@ pub fn day17(input: &str) -> SolutionResult {
     computer.run();
     let a = computer.output.iter().map(i64::to_string).join(",");
 
+    // XXX At the moment I don't have a general solution, only a solution for my own input.  A
+    // general solution would need to extract and run the beginning of the input program,
+    // corresponding to just one iteration of the loop, or else identify the pattern of the input
+    // program and plug variables into the reverse_step function.
     let reverse_program = computer.program.into_iter().rev().collect_vec();
     let mut a_register_candidates: Vec<i64> = vec![0];
     for b_after in reverse_program {
