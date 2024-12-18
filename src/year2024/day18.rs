@@ -28,7 +28,7 @@ pub fn day18(input: &str) -> SolutionResult {
     };
 
     let grid = prepare_grid(&coordinates, grid_size, iter_count);
-    
+
     let a = find_path(&grid).unwrap().len() - 1;
 
     // Brute-force part 2 with part 1 solution
@@ -69,12 +69,14 @@ fn prepare_grid(
 
 const CARDINALS: [(isize, isize); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
 
-fn neighbors(grid: &Grid<u8>, pos: Vec2<isize>) -> Vec<Vec2<isize>> {
+fn neighbors<'a>(
+    grid: &'a Grid<u8>,
+    pos: &'a Vec2<isize>,
+) -> impl Iterator<Item = Vec2<isize>> + 'a {
     CARDINALS
         .into_iter()
-        .map(|c| pos + c)
+        .map(|c| *pos + c)
         .filter(|c| grid.area().contains(*c) && grid[*c] == b'.')
-        .collect_vec()
 }
 
 fn bfs(grid: &Grid<u8>) -> Option<Grid<Vec2<isize>>> {
@@ -92,7 +94,7 @@ fn bfs(grid: &Grid<u8>) -> Option<Grid<Vec2<isize>>> {
         if v == end {
             return Some(predecessors);
         } else {
-            for neighbor in neighbors(grid, v) {
+            for neighbor in neighbors(grid, &v) {
                 if !explored[neighbor] {
                     explored[neighbor] = true;
                     predecessors[neighbor] = v;
