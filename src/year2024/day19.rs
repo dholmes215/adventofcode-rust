@@ -60,7 +60,7 @@ fn test_pattern_cached<'a>(
         if *pattern == *towel {
             count += 1;
         }
-        if pattern.starts_with(towel) {
+        else if pattern.starts_with(towel) {
             count += test_pattern_cached(&pattern[towel.len()..], towels, memos);
         }
     }
