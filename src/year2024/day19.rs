@@ -4,11 +4,11 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-use std::collections::HashMap;
-use std::iter::Filter;
-use std::slice::Iter;
 use adventofcode_rust::aoc::SolutionResult;
 use itertools::Itertools;
+use std::collections::HashMap;
+use std::iter::{Copied, Filter};
+use std::slice::Iter;
 
 pub fn day19(input: &str) -> SolutionResult {
     let mut lines = input.lines();
@@ -16,15 +16,27 @@ pub fn day19(input: &str) -> SolutionResult {
     towels.sort();
     let patterns = lines.skip(1).collect_vec();
 
-    let a = patterns.iter().filter(|p| test_pattern(p, &towels) > 0).count();
-    let b = patterns.iter().map(|p| test_pattern(p, &towels)).sum::<u64>();
+    let a = patterns
+        .iter()
+        .filter(|p| test_pattern(p, &towels) > 0)
+        .count();
+    let b = patterns
+        .iter()
+        .map(|p| test_pattern(p, &towels))
+        .sum::<u64>();
 
     SolutionResult::new(a, b)
 }
 
 // Return the subset of the given towels that could be the first towel of the given pattern
-fn next_towel_options<'a>(pattern: &str, sorted_towels: &'a [&'a str]) -> Vec<&'a str>  {
-    sorted_towels.iter().filter(|towel| pattern.starts_with(*towel)).copied().collect_vec()
+fn next_towel_options<'a>(
+    pattern: &'a str,
+    sorted_towels: &'a [&'a str],
+) -> impl Iterator<Item = &'a str> {
+    sorted_towels
+        .iter()
+        .filter(|towel| pattern.starts_with(*towel))
+        .copied()
 }
 
 fn test_pattern(pattern: &str, towels: &[&str]) -> u64 {
@@ -32,7 +44,11 @@ fn test_pattern(pattern: &str, towels: &[&str]) -> u64 {
     test_pattern_cached(pattern, towels, &mut cache)
 }
 
-fn test_pattern_cached(pattern: &str, towels: &[&str], memos: &mut HashMap<String, u64>) -> u64 {
+fn test_pattern_cached<'a>(
+    pattern: &'a str,
+    towels: &[&str],
+    memos: &mut HashMap<&'a str, u64>,
+) -> u64 {
     if let Some(result) = memos.get(pattern) {
         return *result;
     }
@@ -48,7 +64,7 @@ fn test_pattern_cached(pattern: &str, towels: &[&str], memos: &mut HashMap<Strin
         }
     }
 
-    memos.insert(pattern.to_string(), count);
+    memos.insert(pattern, count);
     count
 }
 
@@ -59,7 +75,7 @@ mod tests {
     #[test]
     fn test1() {
         assert_eq!(
-            next_towel_options("r", &["b", "br", "bwu", "g", "gb", "r", "rb", "wr"]),
+            next_towel_options("r", &["b", "br", "bwu", "g", "gb", "r", "rb", "wr"]).collect_vec(),
             &["r"]
         )
     }
@@ -70,7 +86,8 @@ mod tests {
             next_towel_options(
                 "gugrrrugwbugrrwbbbbggrwbuurgbbgurururuburrbwgugruwubwrggwr",
                 &["gubrub", "gubwu", "gug", "guggg", "gur"]
-            ),
+            )
+            .collect_vec(),
             &["gug"]
         )
     }
