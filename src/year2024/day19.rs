@@ -7,8 +7,6 @@
 use adventofcode_rust::aoc::SolutionResult;
 use itertools::Itertools;
 use std::collections::HashMap;
-use std::iter::{Copied, Filter};
-use std::slice::Iter;
 
 pub fn day19(input: &str) -> SolutionResult {
     let mut lines = input.lines();
