@@ -16,61 +16,40 @@ pub fn day19(input: &str) -> SolutionResult {
     towels.sort();
     let patterns = lines.skip(1).collect_vec();
 
-    println!("Towels: {:?}", towels);
+    let a = patterns.iter().filter(|p| test_pattern(p, &towels) > 0).count();
+    let b = patterns.iter().map(|p| test_pattern(p, &towels)).sum::<u64>();
 
-    for pattern in &patterns {
-        println!("{:?}: {}", pattern, test_pattern(pattern, &towels));
-    }
-
-    let a = patterns.iter().filter(|p| test_pattern(p, &towels)).count();
-
-    SolutionResult::new(a, 0)
+    SolutionResult::new(a, b)
 }
 
 // Return the subset of the given towels that could be the first towel of the given pattern
 fn next_towel_options<'a>(pattern: &str, sorted_towels: &'a [&'a str]) -> Vec<&'a str>  {
-    // assert!(sorted_towels.is_sorted());
-    // let end = sorted_towels.partition_point(|towel| *towel <= pattern);
-    // let matching_towels = &sorted_towels[..end];
-    // let end = matching_towels.len() - matching_towels.iter().rev().position(|towel| pattern.starts_with(*towel)).unwrap_or(0);
-    // let matching_towels = &sorted_towels[..end];
-    // let begin = matching_towels.partition_point(|towel| !pattern.starts_with(*towel));
-    // &matching_towels[begin..]
-    sorted_towels.iter().filter(|towel| pattern.starts_with(*towel)).map(|towel| *towel).collect_vec()
+    sorted_towels.iter().filter(|towel| pattern.starts_with(*towel)).copied().collect_vec()
 }
 
-fn test_pattern(pattern: &str, towels: &[&str]) -> bool {
+fn test_pattern(pattern: &str, towels: &[&str]) -> u64 {
     let mut cache = HashMap::new();
     test_pattern_cached(pattern, towels, &mut cache)
 }
 
-fn test_pattern_cached(pattern: &str, towels: &[&str], memos: &mut HashMap<String, bool>) -> bool {
-    println!("Testing: {:?}", pattern);
+fn test_pattern_cached(pattern: &str, towels: &[&str], memos: &mut HashMap<String, u64>) -> u64 {
     if let Some(result) = memos.get(pattern) {
-        println!("Cached result for {pattern}: {result}");
         return *result;
     }
-    let mut matching_towels = next_towel_options(pattern, towels);
-    // println!("Matching towels: {:?}", matching_towels);
+    let matching_towels = next_towel_options(pattern, towels);
 
-    // Return early if there's an exact match
-    for towel in matching_towels.clone() {
-        // println!("Comparing {} with {}: {}", pattern, *towel, pattern == *towel);
-        if *pattern == *towel {
-            memos.insert(pattern.to_string(), true);
-            return true;
-        }
-    }
-
+    let mut count = 0u64;
     for towel in matching_towels {
-        if pattern.starts_with(towel) && test_pattern_cached(&pattern[towel.len()..], towels, memos) {
-            memos.insert(pattern.to_string(), true);
-            return true;
+        if *pattern == *towel {
+            count += 1;
+        }
+        if pattern.starts_with(towel) {
+            count += test_pattern_cached(&pattern[towel.len()..], towels, memos);
         }
     }
 
-    memos.insert(pattern.to_string(), false);
-    false
+    memos.insert(pattern.to_string(), count);
+    count
 }
 
 #[cfg(test)]
