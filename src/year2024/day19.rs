@@ -16,13 +16,14 @@ pub fn day19(input: &str) -> SolutionResult {
     towels.sort();
     let patterns = lines.skip(1).collect_vec();
 
-    let a = patterns
+    let result = patterns.iter()
+        .map(|p| test_pattern(p, &towels)).collect_vec();
+    let a = result
         .iter()
-        .filter(|p| test_pattern(p, &towels) > 0)
+        .filter(|i| **i > 0u64)
         .count();
-    let b = patterns
+    let b = result
         .iter()
-        .map(|p| test_pattern(p, &towels))
         .sum::<u64>();
 
     SolutionResult::new(a, b)
