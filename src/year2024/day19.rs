@@ -6,6 +6,7 @@
 
 use adventofcode_rust::aoc::SolutionResult;
 use itertools::Itertools;
+use rayon::prelude::*;
 use std::collections::HashMap;
 
 pub fn day19(input: &str) -> SolutionResult {
@@ -14,15 +15,12 @@ pub fn day19(input: &str) -> SolutionResult {
     towels.sort();
     let patterns = lines.skip(1).collect_vec();
 
-    let result = patterns.iter()
-        .map(|p| test_pattern(p, &towels)).collect_vec();
-    let a = result
-        .iter()
-        .filter(|i| **i > 0u64)
-        .count();
-    let b = result
-        .iter()
-        .sum::<u64>();
+    let result = patterns
+        .par_iter()
+        .map(|p| test_pattern(p, &towels))
+        .collect::<Vec<_>>();
+    let a = result.iter().filter(|i| **i > 0u64).count();
+    let b = result.iter().sum::<u64>();
 
     SolutionResult::new(a, b)
 }
@@ -57,8 +55,7 @@ fn test_pattern_cached<'a>(
     for towel in matching_towels {
         if *pattern == *towel {
             count += 1;
-        }
-        else if pattern.starts_with(towel) {
+        } else if pattern.starts_with(towel) {
             count += test_pattern_cached(&pattern[towel.len()..], towels, memos);
         }
     }
