@@ -114,6 +114,7 @@ pub mod aoc {
         }
     }
 
+    #[derive(Debug)]
     pub struct Rect<T> {
         pub base: Vec2<T>,
         pub dimensions: Vec2<T>,
