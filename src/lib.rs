@@ -9,13 +9,74 @@ use crate::aoc::SolutionResult;
 
 pub mod aoc {
     use std::fmt::Display;
+    use std::io::Error;
     use itertools::{Itertools, Product};
     use std::ops;
     use std::ops::{Add, Index, IndexMut, Range};
+    use std::path::{Path, PathBuf};
+    use clap::Parser;
 
     pub struct SolutionResult {
         pub a: String,
         pub b: String,
+    }
+
+    #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+    pub struct Date {
+        year: u32,
+        day: u32,
+    }
+
+    #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+    pub struct DateFilter {
+        year: u32,
+        day: Option<u32>,
+    }
+
+    pub struct Solution {
+        function: fn(&str) -> SolutionResult,
+        label: String,
+    }
+
+    #[derive(Parser, Debug)]
+    pub struct Args {
+        /// Run only a single year's solutions
+        year: Option<u32>,
+        /// Run only a single day's solution (requires --year)
+        day: Option<u32>,
+        /// Input data directory (excludes --inputfile)
+        datadir: Option<PathBuf>,
+        /// Input file (requires --day, excludes --datadir)
+        inputfile: Option<PathBuf>,
+        #[arg(default_value_t = 1)]
+        /// Repeat each solution this many times (default: 1)
+        repeat: u32,
+        /// Repeat each solution at most this long (default: 1)
+        #[arg(default_value_t = 1)]
+        seconds: u32,
+    }
+
+    #[derive(Debug)]
+    pub struct RunnerOptions {
+        inputfile: Option<PathBuf>,
+        datadir: Option<PathBuf>,
+        dates: Option<DateFilter>,
+        repeat: u32,
+        seconds: u32,
+    }
+
+    impl RunnerOptions {
+        pub fn process_args() -> RunnerOptions {
+            todo!()
+        }
+    }
+
+    /// XXX What should the error type be?
+    fn find_data_dir() -> Result<PathBuf, Error> {
+        match std::env::current_dir() {
+            Ok(path) => { todo!() }
+            Err(err) => { Err(err)? }
+        }
     }
 
     #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, Ord, PartialOrd, Default)]
