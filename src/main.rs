@@ -220,7 +220,7 @@ fn main() {
     // }
 
     {
-        let mut input_bytes = fs::read("data/2024/21example1.txt").unwrap();
+        let mut input_bytes = fs::read("data/2024/21example2.txt").unwrap();
         input_bytes.retain(|&x| x != b'\r');
         let input = std::str::from_utf8(&input_bytes).unwrap();
         let result = year2024::day21::day21(input);
