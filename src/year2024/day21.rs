@@ -6,8 +6,11 @@
 
 use adventofcode_rust::aoc::{Grid, SolutionResult, Vec2};
 use itertools::Itertools;
-use std::collections::{HashMap, VecDeque};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::iter;
+use std::iter::{Chain, Copied, Once};
+use std::slice::{Iter, SplitInclusive};
+use rayon::iter::split;
 use rayon::prelude::*;
 
 const NUM_KEYPAD_BYTES: &[u8] = b"789\n456\n123\n#0A\n";
@@ -21,11 +24,19 @@ pub fn day21(input: &str) -> SolutionResult {
     let num_key_paths = find_keypad_paths(&num_keypad);
     let dir_key_paths = find_keypad_paths(&dir_keypad);
 
+    // for ((a,b),v) in &dir_key_paths {
+    //     println!("{},{}: {:?}", *a, *b, v);
+    // }
+    // println!("{dir_key_paths:#?}");
+
+    // expand_code_test(&dir_key_paths, 3);
+    // let a = 0;
+
     let a: u64 = door_codes
-        .par_iter()
+        .iter()
         .map(|c| code_complexity(c, &num_key_paths, &dir_key_paths))
         .sum();
-    
+
     SolutionResult::new(a, 0)
 }
 
@@ -124,6 +135,62 @@ fn find_keypad_paths(grid: &Grid<u8>) -> HashMap<(u8, u8), Vec<Vec<u8>>> {
     paths
 }
 
+// fn find_best_expansions(grid: &Grid<u8>) -> HashMap<Vec<u8>, Vec<u8>> {
+//     let keys = grid
+//         .data_slice()
+//         .iter()
+//         .filter(|b| **b != b'#')
+//         .collect_vec();
+//     let mut paths = HashMap::<(u8, u8), Vec<Vec<u8>>>::new();
+//     for button1 in &keys {
+//         let pos1 = grid_find(grid, **button1).unwrap();
+//         let predecessors = bfs(grid, pos1);
+//         for button2 in &keys {
+//             let pos2 = grid_find(grid, **button2).unwrap();
+//             let entry = paths.entry((grid[pos1], grid[pos2])).or_default();
+//             for path in find_paths(&predecessors, pos1, pos2) {
+//                 entry.push(path_to_u8(&path));
+//             }
+//         }
+//     }
+//     paths
+// }
+
+fn expand_code_test(
+    dir_key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>, i: usize) {
+
+    let code = b"<vA";
+    let mut expansions = vec![code.to_vec()];
+
+    for i in 0..i {
+        let mut new_expansions = vec![];
+        for expansion in expansions {
+            new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths, dir_key_paths));
+        }
+        expansions = new_expansions;
+
+        // let min = expansions.iter().min_by(|a, b| a.len().cmp(&b.len())).unwrap().len();
+        // expansions = expansions.iter().filter(|a| a.len() == min).cloned().collect_vec();
+    }
+
+    for expansion in expansions {
+        println!("{}", std::str::from_utf8(&expansion).unwrap());
+    }
+}
+
+/// Split a sequence of button presses into groups ending in 'A'
+fn split_button_presses(button_presses: &[u8]) -> SplitInclusive<'_, u8, fn(&u8) -> bool> {
+    button_presses.split_inclusive(|&b| b == b'A')
+}
+
+fn tally_subsequences(button_presses: &[u8]) -> BTreeMap<Vec<u8>, usize> {
+    let mut counts = BTreeMap::new();
+    for seq in split_button_presses(button_presses) {
+        *counts.entry(seq.to_vec()).or_insert(0) += 1;
+    }
+    counts
+}
+
 fn expand_code(
     code: &[u8],
     num_key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>,
@@ -131,30 +198,71 @@ fn expand_code(
 ) -> Vec<u8> {
     let code = code.to_vec();
     let mut expansions = vec![code.to_vec()];
-    
+
     let mut new_expansions = vec![];
     for expansion in expansions {
-        new_expansions.append(&mut expand_code_once(&expansion, num_key_paths));
-    }
-    expansions = new_expansions;
-    
-    let mut new_expansions = vec![];
-    for expansion in expansions {
-        new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths));
+        new_expansions.append(&mut expand_code_once(&expansion, num_key_paths, dir_key_paths));
     }
     expansions = new_expansions;
 
     let mut new_expansions = vec![];
     for expansion in expansions {
-        new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths));
+        new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths, dir_key_paths));
+    }
+    expansions = new_expansions;
+
+    let mut new_expansions = vec![];
+    for expansion in expansions {
+        new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths, dir_key_paths));
     }
     expansions = new_expansions;
 
     expansions.iter().min_by(|a, b| a.len().cmp(&b.len())).unwrap().clone()
 }
 
-fn expand_code_once(code: &[u8], key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) -> Vec<Vec<u8>> {
-    let code = iter::once(b'A').chain(code.iter().copied()).collect_vec();
+fn remove_duplicate_tallies(mut tallies: Vec<BTreeMap<Vec<u8>, usize>>) -> Vec<BTreeMap<Vec<u8>, usize>> {
+    tallies.sort();
+    tallies.into_iter().unique().collect_vec()
+}
+
+fn expand_code2(
+    code: &[u8],
+    num_key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>,
+    dir_key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>,
+) -> Vec<u8> {
+    let code = code.to_vec();
+    let mut expansions = vec![code.to_vec()];
+
+    let mut new_expansions = vec![];
+    for expansion in expansions {
+        new_expansions.append(&mut expand_code_once(&expansion, num_key_paths, dir_key_paths));
+    }
+    expansions = new_expansions;
+    
+    let tallies = remove_duplicate_tallies(expansions.iter().map(|e| tally_subsequences(e)).collect_vec());
+
+    let mut new_expansions = vec![];
+    for expansion in expansions {
+        new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths, dir_key_paths));
+    }
+    expansions = new_expansions;
+
+    let mut new_expansions = vec![];
+    for expansion in expansions {
+        new_expansions.append(&mut expand_code_once(&expansion, dir_key_paths, dir_key_paths));
+    }
+    expansions = new_expansions;
+
+    expansions.iter().min_by(|a, b| a.len().cmp(&b.len())).unwrap().clone()
+}
+
+fn simple_expand_len(code: &[u8], key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) -> usize {
+    let code = prepend_a(code).collect_vec();
+    code.iter().tuple_windows::<(_, _)>().flat_map(|(p1, p2)| key_paths[&(*p1, *p2)].first().unwrap()).count()
+}
+
+fn expand_code_once(code: &[u8], key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>, next_key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) -> Vec<Vec<u8>> {
+    let code = prepend_a(code).collect_vec();
     let mut expansions: Vec<Vec<u8>> = vec![vec![]];
     for (a, b) in code.iter().tuple_windows::<(_, _)>() {
         let mut new_expansions = vec![];
@@ -168,9 +276,43 @@ fn expand_code_once(code: &[u8], key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) ->
         expansions = new_expansions;
     }
 
+    let min = expansions.iter().map(|a| simple_expand_len(a, next_key_paths)).min().unwrap();
+    expansions.retain(|a| simple_expand_len(a, next_key_paths) == min);
 
     expansions
 }
+
+fn tally_code_expansions(code: &[u8], key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) -> Vec<BTreeMap<Vec<u8>, usize>> {
+    let expansions = expand_code_once(code, key_paths, key_paths);
+    remove_duplicate_tallies(expansions.iter().map(|e| tally_subsequences(e)).collect_vec())
+}
+
+fn expand_tallies(tallies: &BTreeMap<Vec<u8>, usize>, key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) -> Vec<BTreeMap<Vec<u8>, usize>> {
+    for (code, count) in tallies {
+        let tally_expansions = tally_code_expansions(code, key_paths);
+        
+    }
+    todo!()
+}
+
+fn expand_all_tallies(all_tallies: &Vec<BTreeMap<Vec<u8>, usize>>, key_paths: &HashMap<(u8, u8), Vec<Vec<u8>>>) -> Vec<BTreeMap<Vec<u8>, usize>> {
+    for tallies in all_tallies {
+        for (code, count) in tallies {
+            
+        }
+    }
+    
+    todo!()
+}
+
+fn prepend_a(button_presses: &[u8]) -> impl Iterator<Item=u8> + use<'_> {
+    iter::once(b'A').chain(button_presses.iter().copied())
+}
+
+// fn best_expansion(button_presses: &[u8], previous_level_costs: ) {
+//     let button_presses = prepend_a(button_presses);
+//
+// }
 
 fn code_complexity(
     code: &[u8],
