@@ -45,6 +45,7 @@ pub fn day22(input: &str) -> SolutionResult {
 
     let change_sequence_candidates = std::iter::repeat_n((-9..=9), 4)
         .multi_cartesian_product()
+        .filter(|sequence| sequence.iter().sum::<i64>() >= -9 && sequence.iter().sum::<i64>() <= 9)
         .collect_vec();
     let change_windows = price_changes
         .iter()
