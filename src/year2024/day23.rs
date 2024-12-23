@@ -4,12 +4,15 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-use std::collections::{BTreeMap, BTreeSet};
-use itertools::Itertools;
 use adventofcode_rust::aoc::SolutionResult;
+use itertools::Itertools;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub fn day23(input: &str) -> SolutionResult {
-    let pairs = input.lines().map(|line| (&line[0..2], &line[3..5])).collect_vec();
+    let pairs = input
+        .lines()
+        .map(|line| (&line[0..2], &line[3..5]))
+        .collect_vec();
 
     let mut edges = BTreeMap::new();
     let mut nodes = vec![];
@@ -24,7 +27,7 @@ pub fn day23(input: &str) -> SolutionResult {
 
     let mut triples = BTreeSet::new();
     for a in &nodes {
-        for (b,c) in edges.get(a).unwrap().iter().tuple_combinations() {
+        for (b, c) in edges.get(a).unwrap().iter().tuple_combinations() {
             if edges[b].contains(c) {
                 let mut triple = [a, *b, *c];
                 triple.sort_unstable();
@@ -33,7 +36,10 @@ pub fn day23(input: &str) -> SolutionResult {
         }
     }
 
-    let a = triples.iter().filter(|triple| has_computer_starting_with_t(triple)).count();
+    let a = triples
+        .iter()
+        .filter(|triple| has_computer_starting_with_t(triple))
+        .count();
 
     let mut edges_including_self = edges.clone();
     for node in &nodes {
@@ -42,16 +48,23 @@ pub fn day23(input: &str) -> SolutionResult {
 
     let b = solve_part2(&nodes, edges_including_self);
 
-    SolutionResult::new(a,b)
+    SolutionResult::new(a, b)
 }
 
 fn solve_part2(nodes: &Vec<&str>, edges_including_self: BTreeMap<&str, BTreeSet<&str>>) -> String {
     let max_network_size = edges_including_self.first_key_value().unwrap().1.len();
     for _ in (0..max_network_size).rev() {
         for node1 in nodes {
-            for candidate_party in edges_including_self.get(node1).unwrap().iter().combinations(13) {
+            for candidate_party in edges_including_self
+                .get(node1)
+                .unwrap()
+                .iter()
+                .combinations(13)
+            {
                 let matched = candidate_party.iter().all(|node2| {
-                    candidate_party.iter().all(|b| edges_including_self[*node2].contains(*b))
+                    candidate_party
+                        .iter()
+                        .all(|b| edges_including_self[*node2].contains(*b))
                 });
                 if matched {
                     return candidate_party.iter().join(",");
@@ -62,6 +75,6 @@ fn solve_part2(nodes: &Vec<&str>, edges_including_self: BTreeMap<&str, BTreeSet<
     panic!("No solution found");
 }
 
-fn has_computer_starting_with_t(triple: &[&str; 3]) -> bool{
+fn has_computer_starting_with_t(triple: &[&str; 3]) -> bool {
     triple.iter().any(|s| s.starts_with('t'))
 }
