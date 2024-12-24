@@ -46,6 +46,7 @@ pub fn day24(input: &str) -> SolutionResult {
         .collect::<String>();
     let a = i64::from_str_radix(&str, 2).unwrap();
 
+    // Print GraphViz DOT input which can be fed into GraphViz to visualize the graph of adders
     println!("digraph G {{");
     println!("  layout = dot;");
     for (out, gate) in &gates {
@@ -61,8 +62,19 @@ pub fn day24(input: &str) -> SolutionResult {
         }
         verify_adder(out, &gates, &inputs);
     }
+    
+    // XXX I do not actually have a general code solution to this problem yet.  I solved the problem
+    // by running this code to:
+    // 1) Print GraphViz DOT input to generate a graph of the adders
+    // 2) Identify outputs which don't look like they're part of a proper adder structure
+    // This pointed me to all four "problem" adders in the graph.  I then visually picked out some
+    // gates that looked like the ones that needed to be swapped and they were correct.
+    
+    // TODO: take the outputs identified by verify_adder() as incorrect, and for each of them, test
+    // swapping with every other output to find the swap that resolves the problem.  There are few
+    // enough "problem" outputs that this should run in a reasonable amount of time.
 
-    SolutionResult::new(a, 0)
+    SolutionResult::new(a, "")
 }
 
 fn evaluate_gate(out: &str, gates: &BTreeMap<&str, Gate>, inputs: &BTreeMap<&str, bool>) -> bool {
@@ -78,6 +90,7 @@ fn evaluate_gate(out: &str, gates: &BTreeMap<&str, Gate>, inputs: &BTreeMap<&str
     }
 }
 
+// Look for problems with the structure of the given output's adder
 fn verify_adder(out: &str, gates: &BTreeMap<&str, Gate>, inputs: &BTreeMap<&str, bool>) -> bool {
     assert!(out.starts_with('z'));
     assert_ne!(out, "z00");
