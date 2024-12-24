@@ -7,11 +7,12 @@
 use adventofcode_rust::aoc::SolutionResult;
 use itertools::Itertools;
 use regex::Regex;
-use std::collections::HashMap;
+use std::cmp::PartialEq;
+use std::collections::{BTreeMap, HashMap};
 use std::str::FromStr;
 use strum_macros::EnumString;
 
-#[derive(Debug, EnumString)]
+#[derive(Debug, EnumString, strum_macros::Display, Eq, PartialEq)]
 enum Op {
     #[strum(serialize = "AND")]
     And,
@@ -21,7 +22,7 @@ enum Op {
     Xor,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 struct Gate<'a> {
     op: Op,
     in1: &'a str,
@@ -33,12 +34,38 @@ pub fn day24(input: &str) -> SolutionResult {
 
     let out_count = gates.keys().filter(|g| g.starts_with('z')).count();
 
-    let str = (0..out_count).map(|i| if evaluate_gate(&format!("z{i:02}"), &gates, &inputs) {'1'} else {'0'}).rev().collect::<String>();
+    let str = (0..out_count)
+        .map(|i| {
+            if evaluate_gate(&format!("z{i:02}"), &gates, &inputs) {
+                '1'
+            } else {
+                '0'
+            }
+        })
+        .rev()
+        .collect::<String>();
     let a = i64::from_str_radix(&str, 2).unwrap();
+
+    println!("digraph G {{");
+    println!("  layout = dot;");
+    for (out, gate) in &gates {
+        println!("  {}_{}_{} -> {out};", gate.in1, gate.in2, gate.op);
+        println!("  {} -> {}_{}_{};", gate.in1, gate.in1, gate.in2, gate.op);
+        println!("  {} -> {}_{}_{};", gate.in2, gate.in1, gate.in2, gate.op);
+    }
+    println!("}}");
+
+    for (out, gate) in &gates {
+        if !out.starts_with('z') || *out == "z00" || out == gates.last_key_value().unwrap().0 {
+            continue;
+        }
+        verify_adder(out, &gates, &inputs);
+    }
+
     SolutionResult::new(a, 0)
 }
 
-fn evaluate_gate(out: &str, gates: &HashMap<&str, Gate>, inputs: &HashMap<&str, bool>) -> bool {
+fn evaluate_gate(out: &str, gates: &BTreeMap<&str, Gate>, inputs: &BTreeMap<&str, bool>) -> bool {
     if out.starts_with('x') || out.starts_with('y') {
         return inputs[out];
     }
@@ -51,7 +78,55 @@ fn evaluate_gate(out: &str, gates: &HashMap<&str, Gate>, inputs: &HashMap<&str, 
     }
 }
 
-fn parse_input(input: &str) -> (HashMap<&str, bool>, HashMap<&str, Gate>) {
+fn verify_adder(out: &str, gates: &BTreeMap<&str, Gate>, inputs: &BTreeMap<&str, bool>) -> bool {
+    assert!(out.starts_with('z'));
+    assert_ne!(out, "z00");
+    assert_ne!(out, *gates.last_key_value().unwrap().0);
+    
+    let gate = gates.get(out).unwrap();
+
+    if gate.op != Op::Xor {
+        println!("{out}: has wrong input gate: {}", gate.op);
+        return false;
+    }
+    if inputs.contains_key(gate.in1) {
+        println!("{out}: Input {} should not be connected to {}'s XOR gate", gate.in1, out);
+        return false;
+    }
+    if inputs.contains_key(gate.in2) {
+        println!("{out}: Input {} should not be connected to {}'s XOR gate", gate.in2, out);
+        return false;
+    }
+    // One of the XOR inputs is a carry bit (OR) from the previous adder
+    // The other is a XOR output from the two adder input bits
+    let mut carry = gate.in1;
+    let mut in_xor = gate.in2;
+    if gates.get(carry).unwrap().op != Op::Or {
+        carry = gate.in2;
+        in_xor = gate.in1;
+    }
+    if gates.get(carry).unwrap().op != Op::Or {
+        // FIXME: z01 carry bit is an AND, not an OR
+        println!("{}: Could not identify a carry bit for output", out);
+        return false;
+    }
+    if gates.get(in_xor).unwrap().op != Op::Xor {
+        println!("{}: Could not identify a adder input XOR for output", out);
+        return false;
+    }
+    
+    let in_xor_gate = gates.get(in_xor).unwrap();
+    if in_xor_gate.in1[1..] != out[1..] {
+        println!("{}: has incorrect input bit {}", out, in_xor_gate.in1);
+    }
+    if in_xor_gate.in2[1..] != out[1..] {
+        println!("{}: has incorrect input bit {}", out, in_xor_gate.in2);
+    }
+    
+    true
+}
+
+fn parse_input(input: &str) -> (BTreeMap<&str, bool>, BTreeMap<&str, Gate>) {
     let lines = input.lines().collect_vec();
     let split = lines.iter().position(|l| l.is_empty()).unwrap();
 
@@ -62,7 +137,7 @@ fn parse_input(input: &str) -> (HashMap<&str, bool>, HashMap<&str, Gate>) {
             let (_, [a, b]) = input_regex.captures(s).unwrap().extract();
             (a, b.parse::<i32>().unwrap() != 0)
         })
-        .collect::<HashMap<_, _>>();
+        .collect::<BTreeMap<_, _>>();
 
     let gates_regex = Regex::new(r"(.+) (.+) (.+) -> (.+)").unwrap();
     let gates = lines[split + 1..]
@@ -78,6 +153,6 @@ fn parse_input(input: &str) -> (HashMap<&str, bool>, HashMap<&str, Gate>) {
                 },
             )
         })
-        .collect::<HashMap<_, _>>();
+        .collect::<BTreeMap<_, _>>();
     (inputs, gates)
 }
