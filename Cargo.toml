@@ -12,6 +12,7 @@ rayon = "1.10.0"
 clap = { version = "4.5.23", features = ["derive"] }
 strum = "0.26.3"
 strum_macros = "0.26.4"
+arrayvec = "0.7.6"
 
 [profile.release]
 debug = true

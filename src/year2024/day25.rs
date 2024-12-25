@@ -5,8 +5,8 @@
 //
 
 use adventofcode_rust::aoc::{Grid, SolutionResult};
+use arrayvec::ArrayVec;
 use itertools::Itertools;
-use std::iter::zip;
 
 pub fn day25(input: &str) -> SolutionResult {
     assert!(!input.as_bytes().contains(&b'\r'));
@@ -15,21 +15,25 @@ pub fn day25(input: &str) -> SolutionResult {
     let mut locks = vec![];
     let mut keys = vec![];
     for grid in &grids {
-        let heights = grid
+        let heights: ArrayVec<_, 5> = grid
             .cols()
             .map(|col| col.filter(|b| **b == b'#').count())
-            .collect_vec();
+            .collect();
         if grid[(0, 0)] == b'#' {
             locks.push(heights);
         } else {
             keys.push(heights);
         }
     }
-    
+
     let a = locks
         .iter()
         .cartesian_product(keys.iter())
-        .map(|(lock, key)| zip(lock, key).map(|(l, k)| l + k).collect_vec())
+        .map(|(lock, key)| {
+            std::iter::zip(lock, key)
+                .map(|(l, k)| l + k)
+                .collect::<ArrayVec<_, 5>>()
+        })
         .filter(|heights| heights.iter().all(|h| *h <= 7))
         .count();
 
