@@ -267,6 +267,14 @@ pub mod aoc {
         // pub fn cols_mut(&mut self) -> impl Iterator + '_ {
         //     (0..self.width).map(|i| self.data.iter_mut().skip(i).step_by(self.width))
         // }
+        
+        pub fn col(&self, index: isize) -> impl Iterator<Item = &T> {
+            self.data_slice().iter().skip(index as usize).step_by(self.width as usize)
+        }
+        
+        pub fn cols(&self) -> impl Iterator<Item = impl Iterator<Item = &T>> {
+            (0..self.width).map(|x| self.col(x))
+        }
     }
 
     impl<T> Index<(isize, isize)> for Grid<T> {
