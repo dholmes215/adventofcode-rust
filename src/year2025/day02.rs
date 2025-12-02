@@ -47,9 +47,9 @@ fn is_invalid_num_a(id: i64) -> bool {
 
 pub fn is_invalid_str_b(id: String) -> bool {
     for chunk_size in 1..id.len() / 2 + 1 {
-        let chunks = id.chars().chunks(chunk_size);
+        let (first, rest) = id.split_at(chunk_size);
+        let chunks = rest.chars().chunks(chunk_size);
         let mut iter = chunks.into_iter();
-        let first = iter.next().unwrap().collect::<String>();
         if iter
             .all(|id| id.eq(first.chars()))
         {
