@@ -275,6 +275,14 @@ pub mod aoc {
         pub fn cols(&self) -> impl Iterator<Item = impl Iterator<Item = &T>> {
             (0..self.width).map(|x| self.col(x))
         }
+
+        pub fn row(&self, index: isize) -> impl Iterator<Item = &T> {
+            self.data_slice().iter().skip((index * self.width) as usize).take(self.width as usize)
+        }
+
+        pub fn rows(&self) -> impl Iterator<Item = impl Iterator<Item = &T>> {
+            (0..self.height).map(|x| self.row(x))
+        }
     }
 
     impl<T> Index<(isize, isize)> for Grid<T> {
@@ -287,6 +295,8 @@ pub mod aoc {
 
     impl<T> IndexMut<(isize, isize)> for Grid<T> {
         fn index_mut(&mut self, index: (isize, isize)) -> &mut Self::Output {
+            assert!(index.0 < self.width);
+            assert!(index.1 < self.height);
             &mut self.data[(index.1 * self.width + index.0) as usize]
         }
     }
