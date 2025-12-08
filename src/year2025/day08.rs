@@ -86,16 +86,16 @@ pub fn day08(input: &str) -> SolutionResult {
         connected_count = connected_count + 1;
 
         if connected_count == boxes_to_connect {
-            let mut circuits: Vec<Vec<JunctionBox>> = circuits_by_members
+            let mut circuit_rcs: Vec<Circuit> = circuits_by_members
                 .values()
-                .map(|circuit| circuit.borrow().clone())
-                .unique()
+                .cloned()
+                .unique_by(|rc| Rc::as_ptr(rc) as usize)
                 .collect();
-            circuits.sort_by(|l, r| r.len().cmp(&l.len()));
-            a = circuits
+            circuit_rcs.sort_by(|l, r| r.borrow().len().cmp(&l.borrow().len()));
+            a = circuit_rcs
                 .iter()
                 .take(3)
-                .map(|circuit| circuit.len())
+                .map(|circuit| circuit.borrow().len())
                 .product::<usize>() as i64;
         }
     }
