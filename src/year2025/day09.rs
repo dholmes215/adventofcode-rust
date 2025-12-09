@@ -8,6 +8,7 @@
 use adventofcode_rust::aoc::*;
 use itertools::Itertools;
 use std::collections::VecDeque;
+use rayon::prelude::*;
 
 pub fn day09(input: &str) -> SolutionResult {
     let points: Vec<Vec2<i64>> = input
@@ -29,7 +30,7 @@ pub fn day09(input: &str) -> SolutionResult {
         .filter(|&(a, b)| a < b)
         .collect_vec();
 
-    pairs.sort_by_key(rect_area);
+    pairs.par_sort_by_key(rect_area);
     pairs.reverse();
 
     let a = pairs.iter().map(rect_area).max().unwrap();

@@ -341,9 +341,12 @@ fn main() {
         let mut input_bytes = fs::read("data/2025/09.txt").unwrap();
         input_bytes.retain(|&x| x != b'\r');
         let input = std::str::from_utf8(&input_bytes).unwrap();
+        let start = std::time::SystemTime::now();
         let result = year2025::day09::day09(input);
+        let finish = std::time::SystemTime::now();
         println!("2025 Day 09 Part 1: {}", result.a);
         println!("2025 Day 09 Part 2: {}", result.b);
+        println!("Time: {:?}", finish.duration_since(start));
     }
 
 }
