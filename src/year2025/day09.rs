@@ -10,13 +10,15 @@ use itertools::Itertools;
 use std::collections::VecDeque;
 
 pub fn day09(input: &str) -> SolutionResult {
-    let points: Vec<(i64, i64)> = input
+    let points: Vec<Vec2<i64>> = input
         .lines()
         .map(|line| {
-            line.split(',')
-                .map(|num| num.parse::<i64>().unwrap())
-                .collect_tuple::<(_, _)>()
-                .unwrap()
+            Vec2::from_tuple(
+                line.split(',')
+                    .map(|num| num.parse::<i64>().unwrap())
+                    .collect_tuple::<(_, _)>()
+                    .unwrap(),
+            )
         })
         .collect_vec();
 
@@ -30,17 +32,7 @@ pub fn day09(input: &str) -> SolutionResult {
     pairs.sort_by_key(rect_area);
     pairs.reverse();
 
-    println!("{} possible rectangles", pairs.len());
-
     let a = pairs.iter().map(rect_area).max().unwrap();
-
-    let first = points[0];
-    let connections = points
-        .iter()
-        .cloned()
-        .chain([first])
-        .tuple_windows::<(_, _)>()
-        .collect_vec();
 
     // The non-example input's dimensions are far too large to construct an entire actual grid,
     // so instead we'll create a "compressed" grid where the points correspond to large rectangles
@@ -51,21 +43,19 @@ pub fn day09(input: &str) -> SolutionResult {
     //  coordinates.
 
     // Determine x and y interval lists.
-    let mut input_x_points = points.iter().cloned().map(|(a, b)| a).collect_vec();
+    let mut input_x_points = points.iter().cloned().map(|v| v.x).collect_vec();
     input_x_points.sort_unstable();
     input_x_points.dedup();
-    let mut input_y_points = points.iter().cloned().map(|(a, b)| b).collect_vec();
+    let mut input_y_points = points.iter().cloned().map(|(v)| v.y).collect_vec();
     input_y_points.sort_unstable();
     input_y_points.dedup();
 
     let x_intervals = generate_interval_list(&input_x_points);
     let y_intervals = generate_interval_list(&input_y_points);
 
-    let compress_point = |(x, y): &(i64, i64)| {
-        (
-            x_intervals.partition_point(|(x2, _)| x2 < x) as isize,
-            y_intervals.partition_point(|(_, y2)| y2 < y) as isize,
-        )
+    let compress_point = |Vec2 { x, y }: Vec2<i64>| Vec2 {
+        x: x_intervals.partition_point(|&(x2, _)| x2 < x) as isize,
+        y: y_intervals.partition_point(|&(_, y2)| y2 < y) as isize,
     };
 
     // Create compressed grid.
@@ -73,14 +63,20 @@ pub fn day09(input: &str) -> SolutionResult {
         Grid::new(x_intervals.len() as isize, y_intervals.len() as isize);
     compressed_grid.data_mut_slice().fill(' ');
 
-    for (x, y) in points {
-        compressed_grid[compress_point(&(x, y))] = '#';
+    for &point in &points {
+        compressed_grid[compress_point(point)] = '#';
     }
 
     // Connect lines.
-    for (l, r) in &connections {
-        let from = Vec2::from_tuple(compress_point(l));
-        let to = Vec2::from_tuple(compress_point(r));
+    let first = points[0];
+    let connections = points
+        .iter()
+        .cloned()
+        .chain([first])
+        .map(compress_point)
+        .tuple_windows::<(_, _)>()
+        .collect_vec();
+    for (from, to) in connections.iter().copied() {
         let mut step = to - from;
         step.x = step.x.signum();
         step.y = step.y.signum();
@@ -99,7 +95,6 @@ pub fn day09(input: &str) -> SolutionResult {
         x: 0isize,
         y: 0isize,
     };
-    flood_fill_queue.push_back(first);
     const COLOR_TO_FILL: char = ' ';
     const TEMP_COLOR: char = 'T';
     const NEIGHBORS: [Vec2<isize>; 4] = [
@@ -109,6 +104,7 @@ pub fn day09(input: &str) -> SolutionResult {
         Vec2 { x: -1, y: 0 },
     ];
     let grid_area = compressed_grid.area();
+    flood_fill_queue.push_back(first);
     while let Some(pos) = flood_fill_queue.pop_front() {
         compressed_grid[pos] = '.';
         for next in NEIGHBORS
@@ -144,12 +140,7 @@ pub fn day09(input: &str) -> SolutionResult {
 
     // Filter the rectangle list we already found by whether or not all the rectangle contents are
     // red and green only.
-    let compress_pair = |(l, r)| {
-        (
-            Vec2::from_tuple(compress_point(&l)),
-            Vec2::from_tuple(compress_point(&r)),
-        )
-    };
+    let compress_pair = |(l, r)| (compress_point(l), compress_point(r));
     let rect_from_compressed_pair = |(p1, p2): (Vec2<isize>, Vec2<isize>)| {
         let base: Vec2<isize> = Vec2::from_tuple((p1.x.min(p2.x), p1.y.min(p2.y)));
         let rect: Rect<isize> = Rect {
@@ -176,8 +167,8 @@ pub fn day09(input: &str) -> SolutionResult {
     }
 }
 
-fn rect_area((a, b): &((i64, i64), (i64, i64))) -> i64 {
-    ((a.0 - b.0).abs() + 1) * ((a.1 - b.1).abs() + 1)
+fn rect_area((a, b): &(Vec2<i64>, Vec2<i64>)) -> i64 {
+    ((a.x - b.x).abs() + 1) * ((a.y - b.y).abs() + 1)
 }
 
 fn generate_interval_list(input_points: &Vec<i64>) -> Vec<(i64, i64)> {
