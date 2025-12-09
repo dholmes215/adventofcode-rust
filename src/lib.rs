@@ -8,13 +8,13 @@
 use crate::aoc::SolutionResult;
 
 pub mod aoc {
+    use clap::Parser;
+    use itertools::{Itertools, Product};
     use std::fmt::Display;
     use std::io::Error;
-    use itertools::{Itertools, Product};
     use std::ops;
     use std::ops::{Add, Index, IndexMut, Range};
     use std::path::{Path, PathBuf};
-    use clap::Parser;
 
     pub struct SolutionResult {
         pub a: String,
@@ -74,8 +74,10 @@ pub mod aoc {
     /// XXX What should the error type be?
     fn find_data_dir() -> Result<PathBuf, Error> {
         match std::env::current_dir() {
-            Ok(path) => { todo!() }
-            Err(err) => { Err(err)? }
+            Ok(path) => {
+                todo!()
+            }
+            Err(err) => Err(err)?,
         }
     }
 
@@ -93,7 +95,7 @@ pub mod aoc {
             Vec2::new(t.0, t.1)
         }
     }
-    
+
     impl<T: Display> Display for Vec2<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "({}, {})", self.x, self.y)
@@ -190,9 +192,10 @@ pub mod aoc {
         }
     }
 
-    impl<T: Copy + std::iter::Step> Rect<T> {
+    impl<T: Copy + std::iter::Step + Add<Output = T>> Rect<T> {
         pub fn all_points(&self) -> Product<Range<T>, Range<T>> {
-            (self.base.x..self.dimensions.x).cartesian_product(self.base.y..self.dimensions.y)
+            (self.base.x..(self.base.x + self.dimensions.x))
+                .cartesian_product(self.base.y..(self.base.y + self.dimensions.y))
         }
     }
 
@@ -210,18 +213,25 @@ pub mod aoc {
     impl Grid<u8> {
         pub fn from_u8(input: &[u8]) -> Grid<u8> {
             let width = input.iter().position(is_crlf_byte).unwrap();
-            let chunk_width = input[width..].iter().position(|c| !is_crlf_byte(c)).unwrap() + width;
+            let chunk_width = input[width..]
+                .iter()
+                .position(|c| !is_crlf_byte(c))
+                .unwrap()
+                + width;
             let height = input.len() / chunk_width;
             let mut grid = Grid::<u8>::new(width as isize, height as isize);
             let input_iter = input
                 .trim_ascii()
                 .iter()
                 .filter(|c| **c != b'\r' && **c != b'\n');
-            grid.data_mut_slice().iter_mut().zip(input_iter).for_each(|(to, from)| *to = *from);
+            grid.data_mut_slice()
+                .iter_mut()
+                .zip(input_iter)
+                .for_each(|(to, from)| *to = *from);
             grid
         }
     }
-    
+
     impl<T: Default> Grid<T> {
         pub fn new(width: isize, height: isize) -> Self {
             let mut grid = Grid {
@@ -267,17 +277,23 @@ pub mod aoc {
         // pub fn cols_mut(&mut self) -> impl Iterator + '_ {
         //     (0..self.width).map(|i| self.data.iter_mut().skip(i).step_by(self.width))
         // }
-        
+
         pub fn col(&self, index: isize) -> impl Iterator<Item = &T> {
-            self.data_slice().iter().skip(index as usize).step_by(self.width as usize)
+            self.data_slice()
+                .iter()
+                .skip(index as usize)
+                .step_by(self.width as usize)
         }
-        
+
         pub fn cols(&self) -> impl Iterator<Item = impl Iterator<Item = &T>> {
             (0..self.width).map(|x| self.col(x))
         }
 
         pub fn row(&self, index: isize) -> impl Iterator<Item = &T> {
-            self.data_slice().iter().skip((index * self.width) as usize).take(self.width as usize)
+            self.data_slice()
+                .iter()
+                .skip((index * self.width) as usize)
+                .take(self.width as usize)
         }
 
         pub fn rows(&self) -> impl Iterator<Item = impl Iterator<Item = &T>> {
