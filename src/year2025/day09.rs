@@ -7,8 +7,8 @@
 
 use adventofcode_rust::aoc::*;
 use itertools::Itertools;
-use std::collections::VecDeque;
 use rayon::prelude::*;
+use std::collections::VecDeque;
 
 pub fn day09(input: &str) -> SolutionResult {
     let points: Vec<Vec2<i64>> = input
@@ -155,10 +155,9 @@ pub fn day09(input: &str) -> SolutionResult {
 
     let b = rect_area(
         &pairs
-            .iter()
-            .cloned()
-            .filter(|p| is_valid_rectangle(&rect_from_compressed_pair(compress_pair(*p))))
-            .next()
+            .par_iter()
+            .copied()
+            .find_first(|p| is_valid_rectangle(&rect_from_compressed_pair(compress_pair(*p))))
             .unwrap(),
     );
 
