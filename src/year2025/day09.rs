@@ -6,6 +6,7 @@
 //
 
 use adventofcode_rust::aoc::*;
+use image::{ImageBuffer, RgbImage};
 use itertools::Itertools;
 use rayon::prelude::*;
 use std::collections::VecDeque;
@@ -125,19 +126,9 @@ pub fn day09(input: &str) -> SolutionResult {
         .iter_mut()
         .for_each(|&mut ref mut c| {
             if *c == ' ' {
-                *c = 'O'
+                *c = 'x'
             }
         });
-
-    // Print grid.
-    // const PRINT_MAX_WIDTH: isize = 200;
-    // const PRINT_MAX_HEIGHT: isize = 500;
-    // for y in 0isize..(compressed_grid.height().min(PRINT_MAX_HEIGHT)) {
-    //     for x in 0isize..compressed_grid.width().min(PRINT_MAX_WIDTH) {
-    //         print!("{}", compressed_grid[(x, y)]);
-    //     }
-    //     println!();
-    // }
 
     // Filter the rectangle list we already found by whether or not all the rectangle contents are
     // red and green only.
@@ -153,13 +144,47 @@ pub fn day09(input: &str) -> SolutionResult {
     let is_valid_rectangle =
         |rect: &Rect<isize>| rect.all_points().all(|p| compressed_grid[p] != '.');
 
-    let b = rect_area(
-        &pairs
-            .par_iter()
-            .copied()
-            .find_first(|p| is_valid_rectangle(&rect_from_compressed_pair(compress_pair(*p))))
-            .unwrap(),
-    );
+    let found_rect = &pairs
+        .par_iter()
+        .copied()
+        .find_first(|p| is_valid_rectangle(&rect_from_compressed_pair(compress_pair(*p))))
+        .unwrap();
+    let b = rect_area(found_rect);
+
+    for p in rect_from_compressed_pair(compress_pair(*found_rect)).all_points() {
+        compressed_grid[p] = 'O';
+    }
+
+    // Print grid.
+    // const PRINT_MAX_WIDTH: isize = 200;
+    // const PRINT_MAX_HEIGHT: isize = 500;
+    // for y in 0isize..(compressed_grid.height().min(PRINT_MAX_HEIGHT)) {
+    //     for x in 0isize..compressed_grid.width().min(PRINT_MAX_WIDTH) {
+    //         print!("{}", compressed_grid[(x, y)]);
+    //     }
+    //     println!();
+    // }
+
+    // Visualize grid.
+    // {
+    //     let mut img = RgbImage::new(
+    //         compressed_grid.width() as u32,
+    //         compressed_grid.height() as u32,
+    //     );
+    //     for (x, y) in compressed_grid.area().all_points() {
+    //         let color = match compressed_grid[(x, y)] {
+    //             '.' => image::Rgb([255, 255, 255]),
+    //             '#' => image::Rgb([255, 0, 0]),
+    //             'X' => image::Rgb([0, 255, 0]),
+    //             'x' => image::Rgb([0, 127, 0]),
+    //             'O' => image::Rgb([0, 0, 255]),
+    //             _ => panic!("Invalid tile"),
+    //         };
+    //         img.put_pixel(x as u32, y as u32, color);
+    //     }
+    //     img.save("day09.png")
+    //         .unwrap_or_else(|_| eprintln!("Failed to save image"));
+    // }
 
     SolutionResult {
         a: a.to_string(),
