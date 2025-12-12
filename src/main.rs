@@ -361,18 +361,30 @@ fn main() {
     //     println!("2025 Day 10 Part 2: {}", result.b);
     //     println!("Time: {:?}", finish.duration_since(start));
     // }
+    //
+    // {
+    //     // let mut input_bytes = fs::read("data/2025/11example2.txt").unwrap();
+    //     let mut input_bytes = fs::read("data/2025/11.txt").unwrap();
+    //     input_bytes.retain(|&x| x != b'\r');
+    //     let input = std::str::from_utf8(&input_bytes).unwrap();
+    //     let start = std::time::SystemTime::now();
+    //     let result = year2025::day11::day11(input);
+    //     let finish = std::time::SystemTime::now();
+    //     println!("2025 Day 11 Part 1: {}", result.a);
+    //     println!("2025 Day 11 Part 2: {}", result.b);
+    //     println!("Time: {:?}", finish.duration_since(start));
+    // }
 
     {
-        // let mut input_bytes = fs::read("data/2025/11example2.txt").unwrap();
-        let mut input_bytes = fs::read("data/2025/11.txt").unwrap();
+        let mut input_bytes = fs::read("data/2025/12example.txt").unwrap();
+        // let mut input_bytes = fs::read("data/2025/12.txt").unwrap();
         input_bytes.retain(|&x| x != b'\r');
         let input = std::str::from_utf8(&input_bytes).unwrap();
         let start = std::time::SystemTime::now();
-        let result = year2025::day11::day11(input);
+        let result = year2025::day12::day12(input);
         let finish = std::time::SystemTime::now();
-        println!("2025 Day 11 Part 1: {}", result.a);
-        println!("2025 Day 11 Part 2: {}", result.b);
+        println!("2025 Day 12 Part 1: {}", result.a);
+        println!("2025 Day 12 Part 2: {}", result.b);
         println!("Time: {:?}", finish.duration_since(start));
     }
-
 }
